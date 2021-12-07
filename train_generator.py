@@ -1,14 +1,21 @@
 from transformers import BartForConditionalGeneration, BartTokenizer
 import torch
-from torch import optim
 from torch.utils.data.dataset import Dataset
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-from datetime import datetime
-from nltk.translate.bleu_score import corpus_bleu
 from datasets import load_metric
 import argparse
-import os
-import math
+import numpy as np
+import yaml
+
+class DictObj:
+
+    def __init__(self, in_dict:dict):
+        assert isinstance(in_dict, dict)
+        for key, val in in_dict.items():
+            if isinstance(val, (list, tuple)):
+               setattr(self, key, [DictObj(x) if isinstance(x, dict) else x for x in val])
+            else:
+               setattr(self, key, DictObj(val) if isinstance(val, dict) else val)
 
 class Corpus:
     __tokenizer = None
@@ -25,7 +32,7 @@ class Corpus:
 
 
 class Data(Dataset):
-    def __init__(self, dataset_path, data_type: str = "train"):
+    def __init__(self, dataset_path, data_type: str):
         super(Data, self).__init__()
         filepath = dataset_path + data_type
         self.src = []
@@ -33,9 +40,10 @@ class Data(Dataset):
         with open(filepath, 'rb') as f:
             _file = f.readlines()
         for line in _file:
-            line_split = line.split('\t')
-            self.src.append(line_split[0].replace("text:"))
-            self.tgt.append(line_split[1].replace("labels:"))
+            line = line.strip().decode('utf-8')
+            line_split = line.split("\t")
+            self.src.append(line_split[0].replace("text:",""))
+            self.tgt.append(line_split[1].replace("labels:",""))
 
     def __getitem__(self, index):
         return self.src[index], self.tgt[index]
@@ -47,16 +55,12 @@ def collate_fn(batch):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     src_sentences, tgt_sentences = map(list, zip(*batch))
     tokenizer = Corpus.get_tokenizer()
-    inputs = tokenizer(src_sentences, return_tensors='pt',padding=True)
-    outputs = tokenizer.encode_batch(tgt_sentences)
-    batch = {
-        'input_ids' : inputs.input_ids.to(device),
-        'attention_mask' : inputs.attention_mask.to(device),
-        'decoder_input_ids' : torch.as_tensor([output.ids for output in outputs]).to(device),
-        'decoder_attention_mask' : torch.as_tensor([output.attention_mask for output in outputs]).to(device),
-        'labels' : torch.as_tensor([output.ids for output in outputs]).to(device)
-    }
-
+    batch = tokenizer(src_sentences, padding=True, truncation=True, max_length=512, return_tensors='pt')
+    with tokenizer.as_target_tokenizer():
+        labels = tokenizer(tgt_sentences, padding=True, truncation=True, max_length=512, return_tensors='pt')
+    batch['labels'] = labels['input_ids']
+    batch['decoder_attention_mask'] = labels['attention_mask']
+    batch = {k:v.to(device) for k,v in batch.items()}
     return batch
 
 def _compute_metrics(p):
@@ -67,12 +71,12 @@ def _compute_metrics(p):
     else:
         pred_ids = preds
 
-    _, gloss_tokenizer = Corpus.get_tokenizer()
+    tokenizer = Corpus.get_tokenizer()
 
-    pred_sents = gloss_tokenizer.decode_batch(pred_ids)
-    label_ids[label_ids == -100] = gloss_tokenizer.token_to_id('[PAD]')
+    pred_sents = tokenizer.batch_decode(pred_ids)
+    label_ids[label_ids == -100] = tokenizer.token_to_id('[PAD]')
 
-    ref_sents = gloss_tokenizer.decode_batch(label_ids)
+    ref_sents = tokenizer.batch_decode(label_ids)
     prediction = [line.split() if len(line) != 0 else "" for line in pred_sents]
     reference = [[line.split()] for line in ref_sents]
 
@@ -93,16 +97,22 @@ if __name__=="__main__":
 
     parser=argparse.ArgumentParser(description='Training')
     parser.add_argument('--random_seed','-rs',type=int,default=42)
-    parser.add_argument('--configs','-cf',type=str,default="./conf/baseline.yaml")
+    parser.add_argument('--configs','-cf',type=str,default="./conf/para.yaml")
     parser.add_argument('--model','-m',type=str,default='transformer')
+
 
     args=parser.parse_args()
     random_seed = args.random_seed
-    dataset_path = "/home/tjrals/beir/gen_datasets/"
+    config_filepath = args.configs
+    with open(config_filepath) as f:
+        configs = yaml.load(f, Loader=yaml.FullLoader)
+        configs = DictObj(configs)
+
+    dataset_path = configs.dataset.gen_path
     torch.manual_seed(random_seed)
     bleu = load_metric('bleu')
 
-    batch_size = 32
+    batch_size = 16
     epochs = 10
 
     train_dataset =  Data(dataset_path, 'train.txt')
