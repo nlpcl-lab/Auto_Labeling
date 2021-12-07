@@ -1,3 +1,6 @@
-dataset:
-  gen_path : /home/tjrals/Auto_Labeling/gen_datasets
+gen_query:
+  gen_path : /home/tjrals/Auto_Labeling/gen_datasets/
+  batch_size : 8
+  epochs : 6
+
 

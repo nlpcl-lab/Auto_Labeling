@@ -108,12 +108,12 @@ if __name__=="__main__":
         configs = yaml.load(f, Loader=yaml.FullLoader)
         configs = DictObj(configs)
 
-    dataset_path = configs.dataset.gen_path
+    dataset_path = configs.gen_query.gen_path
     torch.manual_seed(random_seed)
     bleu = load_metric('bleu')
 
-    batch_size = 16
-    epochs = 10
+    batch_size = configs.gen_query.batch_size
+    epochs = configs.gen_query.epochs
 
     train_dataset =  Data(dataset_path, 'train.txt')
     eval_dataset = Data(dataset_path, 'valid.txt')
