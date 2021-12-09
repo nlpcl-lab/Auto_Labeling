@@ -109,5 +109,5 @@ if __name__ == "__main__":
 
     wiki_extractor = Wiki_Extract()
     # print(wiki_extractor.get_section(target))
-
+    print(wiki_extractor.get_summary(target))
     print(wiki_extractor.get_categories(target))

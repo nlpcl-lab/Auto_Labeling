@@ -29,7 +29,7 @@ max_seq_length = 256            # Max length for passages. Increasing it, requir
 #### Provide any sentence-transformers or HF model
 model_name = "bert-base-uncased"
 word_embedding_model = models.Transformer(model_name, max_seq_length=max_seq_length)
-pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension())
+pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension(),pooling_mode_cls_token=True, pooling_mode_mean_tokens=False)
 model = SentenceTransformer(modules=[word_embedding_model, pooling_model])
 
 #### Provide a high batch-size to train better with triplets!
@@ -55,7 +55,12 @@ os.makedirs(model_save_path, exist_ok=True)
 num_epochs = 25
 evaluation_steps = 10000
 warmup_steps = int(len(train_samples) * num_epochs / retriever.batch_size * 0.1)
-
+adam_eps = 1e-8
+adam_betas = (0.9, 0.999)
+max_grad_norm = 2.0
+train_rolling_loss_step = 100
+learning_rate = 2e-5
+weight_decay = 0.0
 
 retriever.fit(train_objectives=[(train_dataloader, train_loss)],
               evaluator=ir_evaluator,
@@ -67,6 +72,6 @@ retriever.fit(train_objectives=[(train_dataloader, train_loss)],
               max_grad_norm = 2.0,
               weight_decay=0.0,
               optimizer_class=Adam,
-              optimizer_params={'le':learning_rate,'betas':adam_betas,'eps':adam_eps},
+              optimizer_params={'lr':learning_rate,'betas':adam_betas,'eps':adam_eps},
               scheduler='warmuplinear'
               )
