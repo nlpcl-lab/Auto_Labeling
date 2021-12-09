@@ -55,14 +55,15 @@ if __name__=='__main__':
 
 	if dataset_name == 'nq':
 		out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
-		dataset_dir = os.path.join(out_dir,dataset_name+'_rev')
+		dataset_dir = os.path.join(out_dir,dataset_name+'_info')
 
 		if os.path.exists(dataset_dir):
 			print("dataset dir already exists")
 			# exit(0)
 		else:
 			os.makedirs(dataset_dir)
-		
+
+#make corpus.jsonl file
 		passage_dir = [input_path, 'wikipedia_split','psgs_w100.tsv']
 		passage_dir = os.path.join(*passage_dir)
 
@@ -102,6 +103,7 @@ if __name__=='__main__':
 
 			query_dict = {}
 
+# make train tsv file
 			train_dict = {}
 
 			train_dir = os.path.join(query_dir,'nq-train-v5.json')
@@ -121,7 +123,7 @@ if __name__=='__main__':
 			# else:
 			write_to_tsv(train_dir,train_dict)
 
-
+# make dev tsv file
 			dev_dict = {}
 
 			dev_dir = os.path.join(query_dir,'nq-dev.json')
@@ -132,8 +134,8 @@ if __name__=='__main__':
 			dev_dump = read_json(dev_dir)
 
 			for index,v in tqdm(enumerate(dev_dump)):
-				dev_dict[str(len(query_dict)+index)] = {v['positive_ctxs'][0]['passage_id']:1}
-				query_dict[str(len(query_dict)+index)] = {"text":v['question']}
+				dev_dict[str(len(train_dump)+index)] = {d['passage_id']:1 for d in v['positive_ctxs']}
+				query_dict[str(len(train_dump)+index)] = {"text":v['question']}
 
 			dev_dir = os.path.join(qrels_dir, 'dev.tsv')
 			# if not os.path.isfile(dev_dir):
@@ -141,7 +143,7 @@ if __name__=='__main__':
 			# else:
 			write_to_tsv(dev_dir,dev_dict)
 
-
+# make queires.jsonl file
 			output_queries_path = os.path.join(dataset_dir, 'queries.jsonl')
 			# if not os.path.isfile(output_queries_path):
 			write_to_json(output_queries_path,query_dict)

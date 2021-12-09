@@ -8,9 +8,6 @@ import logging
 import pathlib, os
 import random
 
-def log_dic(d):
-    for key, value in d.items():
-        logging.info("{} : {}".format(key,value))
 
 
 #### Just some code to print debug information to stdout
@@ -21,10 +18,10 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
 #### /print debug information to stdout
 
 dataset = "nq"
-out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
+out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "data")
 data_path = os.path.join(out_dir, dataset)
 
-corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="dev")
+corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
 
 model = DRES(models.SentenceBERT("/home/tjrals/beir/output/bert-base-uncased-v2-nq"))
 retriever = EvaluateRetrieval(model, score_function="dot")
@@ -37,21 +34,7 @@ results = retriever.retrieve(corpus, queries)
 logging.info("Retriever evaluation for k in: {}".format(retriever.k_values))
 ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
 mrr = retriever.evaluate_custom(qrels, results, retriever.k_values, metric="mrr")
-
-logging.info("Result : ndcg")
-log_dic(ndcg)
-
-logging.info("Result : _map")
-log_dic(_map)
-
-logging.info("Result : recall")
-log_dic(recall)
-
-logging.info("Result : precision")
-log_dic(precision)
-
-logging.info("Result : mrr")
-log_dic(mrr)
+top_k = retriever.evaluate_custom(qrels, results, retriever.k_values, metric="top_k_acc")
 
 # #### Print top-k documents retrieved ####
 #
