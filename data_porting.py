@@ -55,7 +55,7 @@ if __name__=='__main__':
 
 	if dataset_name == 'nq':
 		out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
-		dataset_dir = os.path.join(out_dir,dataset_name+'_info')
+		dataset_dir = os.path.join(out_dir,dataset_name+'_our_1')
 
 		if os.path.exists(dataset_dir):
 			print("dataset dir already exists")
@@ -81,8 +81,8 @@ if __name__=='__main__':
 				passage_dict[_id] = {'title':title,'text':text}
 
 			output_passage_path = os.path.join(dataset_dir ,'corpus.jsonl')
-			if not os.path.isfile(output_passage_path):
-				write_to_json(os.path.join(dataset_dir ,'corpus.jsonl'),passage_dict)
+			# if not os.path.isfile(output_passage_path):
+			write_to_json(os.path.join(dataset_dir ,'corpus.jsonl'),passage_dict)
 
 		# passage_map = {v['text']:int(k) for k,v in passage_dict.items()}
 
@@ -106,7 +106,7 @@ if __name__=='__main__':
 # make train tsv file
 			train_dict = {}
 
-			train_dir = os.path.join(query_dir,'nq-train-v5.json')
+			train_dir = os.path.join(query_dir,'nq-train-v4.json')
 			if not os.path.isfile(train_dir):
 				print("{} isn't correct dir.".format(train_dir))
 				exit(0)

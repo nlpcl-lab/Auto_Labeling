@@ -18,13 +18,21 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
 #### /print debug information to stdout
 
 dataset = "nq"
-out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "data")
+out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
 data_path = os.path.join(out_dir, dataset)
 
-corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
+corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="dev")
 
-model = DRES(models.SentenceBERT("/home/tjrals/beir/output/bert-base-uncased-v2-nq"))
+#original DPR model
+model = DRES(models.SentenceBERT((
+    "facebook-dpr-question_encoder-single-nq-base",
+    "facebook-dpr-ctx_encoder-single-nq-base",
+    " [SEP] "), batch_size=128))
 retriever = EvaluateRetrieval(model, score_function="dot")
+
+#trained DPR model
+# model = DRES(models.SentenceBERT("/home/tjrals/beir/output/bert-base-uncased-v2-nq"))
+# retriever = EvaluateRetrieval(model, score_function="dot")
 
 #### Retrieve dense results (format of results is identical to qrels)
 results = retriever.retrieve(corpus, queries)

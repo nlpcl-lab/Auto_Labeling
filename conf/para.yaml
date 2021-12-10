@@ -2,5 +2,8 @@ gen_query:
   gen_path : /home/tjrals/Auto_Labeling/gen_datasets/
   batch_size : 8
   epochs : 6
+  model_path : /home/tjrals/Auto_Labeling/gen_model/{}
+  model_name : KB_BART
+  random_seed : 42
 
 

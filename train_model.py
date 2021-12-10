@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
 #### /print debug information to stdout
 
 #### Download msmarco.zip dataset and unzip the dataset
-dataset = "nq"
+dataset = "nq_our_1"
 out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
 data_path = os.path.join(out_dir, dataset)
 

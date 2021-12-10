@@ -1,0 +1,11 @@
+/.idea/
+/beir/
+/beir.egg-info/
+/examples/
+/gen_datasets/
+/images/
+/venv/
+/LICENSE
+/NOTICE.txt
+/setup.cfg
+/setup.py
