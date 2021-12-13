@@ -1,3 +1,5 @@
+from torch.utils.data.dataset import Dataset
+
 class DictObj:
 
     def __init__(self, in_dict:dict):

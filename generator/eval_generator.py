@@ -14,7 +14,7 @@ if __name__=="__main__":
     parser.add_argument('--configs','-cf',type=str)
 
     args=parser.parse_args()
-    config_filepath = "../conf/" + args.configs
+    config_filepath = "./conf/" + args.configs
     with open(config_filepath) as f:
         configs = yaml.load(f, Loader=yaml.FullLoader)
         configs = DictObj(configs)

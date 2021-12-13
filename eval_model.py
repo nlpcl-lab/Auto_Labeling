@@ -35,23 +35,18 @@ if __name__=="__main__":
                         handlers=[LoggingHandler()])
     #### /print debug information to stdout
 
+    model_name = configs.eval.model
     dataset = configs.eval.data
     logging.info("Dataset is {}".format(dataset))
     out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
     data_path = os.path.join(out_dir, dataset)
 
     corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="dev")
-
-    #original DPR model
-    model = DRES(models.SentenceBERT((
-        "facebook-dpr-question_encoder-single-nq-base",
-        "facebook-dpr-ctx_encoder-single-nq-base",
-        " [SEP] "), batch_size=128))
-    retriever = EvaluateRetrieval(model, score_function="dot")
-
+    model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output", "{}-v2-{}".format(model_name, dataset))
     #trained DPR model
-    # model = DRES(models.SentenceBERT("/home/tjrals/beir/output/bert-base-uncased-v2-nq"))
-    # retriever = EvaluateRetrieval(model, score_function="dot")
+
+    model = DRES(models.SentenceBERT(model_save_path))
+    retriever = EvaluateRetrieval(model, score_function="dot")
 
     #### Retrieve dense results (format of results is identical to qrels)
     results = retriever.retrieve(corpus, queries)

@@ -3,3 +3,4 @@ train:
 
 eval:
   data: nq_our_1
+  model: bert-base-uncased
