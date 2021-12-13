@@ -1,0 +1,9 @@
+gen_Wiki:
+  gen_path : /home/tjrals/Auto_Labeling/gen_datasets/wiki/
+  batch_size : 8
+  epochs : 6
+  model_path : /home/tjrals/Auto_Labeling/gen_model/{}
+  model_name : Wiki_BART
+  random_seed : 42
+
+

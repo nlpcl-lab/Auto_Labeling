@@ -1,5 +1,5 @@
 gen_query:
-  gen_path : /home/tjrals/Auto_Labeling/gen_datasets/
+  gen_path : /home/tjrals/Auto_Labeling/gen_datasets/smqa/
   batch_size : 8
   epochs : 6
   model_path : /home/tjrals/Auto_Labeling/gen_model/{}

@@ -1,0 +1,5 @@
+train:
+  data: nq_our_1
+
+eval:
+  data: nq_our_1

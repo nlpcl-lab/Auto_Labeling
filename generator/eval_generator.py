@@ -11,10 +11,10 @@ from utils import DictObj, Corpus, Data, collate_fn, compute_metrics
 if __name__=="__main__":
 
     parser=argparse.ArgumentParser(description='Evaluation')
-    parser.add_argument('--configs','-cf',type=str,default="../conf/para.yaml")
+    parser.add_argument('--configs','-cf',type=str)
 
     args=parser.parse_args()
-    config_filepath = args.configs
+    config_filepath = "../conf/" + args.configs
     with open(config_filepath) as f:
         configs = yaml.load(f, Loader=yaml.FullLoader)
         configs = DictObj(configs)
