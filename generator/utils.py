@@ -1,4 +1,5 @@
 from torch.utils.data.dataset import Dataset
+import torch
 
 class DictObj:
 

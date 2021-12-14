@@ -43,6 +43,7 @@ if __name__=="__main__":
         output_dir = "../gen_model/{}".format('KB_BART'),
         do_predict=True,
         seed=random_seed,
+        per_device_eval_batch_size=batch_size,
         dataloader_pin_memory=False,
     )
 
