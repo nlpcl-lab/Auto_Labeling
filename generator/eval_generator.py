@@ -32,10 +32,10 @@ if __name__=="__main__":
     test_dataset = Data(dataset_path, 'test.txt')
 
     model = BartForConditionalGeneration.from_pretrained(model_path, forced_bos_token_id=0)
-    tokenizer = BartTokenizer.from_pretrained(model_path)
-    # special_tokens_dict = {'additional_special_tokens': ['__SUB__','__name__','__type__','__SEP__','__des__','__PRE__','__token__','__OBJ__']}
-    # num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
-    # model.resize_token_embeddings(len(tokenizer))
+    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
+    special_tokens_dict = {'additional_special_tokens': ['__SUB__','__name__','__type__','__SEP__','__des__','__PRE__','__token__','__OBJ__']}
+    num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
+    model.resize_token_embeddings(len(tokenizer))
 
     Corpus.create_tokenizer(tokenizer)
 
