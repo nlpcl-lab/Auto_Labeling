@@ -76,7 +76,7 @@ if __name__=="__main__":
                         if obj_sum != "":
                             obj_sum = nlp(obj_sum)
                             obj_sum = list(obj_sum.sents)[0]
-                        if obj_sum == "" or "\n" in obj_sum:
+                        if str(obj_sum) == "" or "\n" in str(obj_sum):
                             obj_sum = [str(s) for s in list(doc.sents) if ent.text in str(s)][0]
                     sub = {'name' : context['title'],
                            'type' : sub_type,
