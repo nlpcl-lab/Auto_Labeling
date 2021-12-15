@@ -40,7 +40,6 @@ if __name__=="__main__":
     data_path = os.path.join(out_dir, dataset)
 
     #### Please Note not all datasets contain a dev split, comment out the line if such the case
-    dev_corpus, dev_queries, dev_qrels = GenericDataLoader(data_path).load(split="dev")
     corpus, queries, qrels = GenericDataLoader(data_path).load(split="train")
 
     train_batch_size = 32           # Increasing the train batch size improves the model performance, but requires more GPU memory (O(n^2))

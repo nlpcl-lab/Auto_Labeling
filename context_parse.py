@@ -76,7 +76,7 @@ if __name__=="__main__":
                         if obj_sum != "":
                             obj_sum = nlp(obj_sum)
                             obj_sum = list(obj_sum.sents)[0]
-                        else:
+                        if obj_sum == "" or "\n" in obj_sum:
                             obj_sum = [str(s) for s in list(doc.sents) if ent.text in str(s)][0]
                     sub = {'name' : context['title'],
                            'type' : sub_type,
@@ -89,5 +89,6 @@ if __name__=="__main__":
                            }
                     text = make_text(sub,pre,obj,v)
                     f.write(text)
+            break
 
 
