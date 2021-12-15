@@ -1,4 +1,5 @@
 import spacy
+import random
 import argparse
 from tqdm import tqdm
 import yaml
@@ -45,6 +46,7 @@ if __name__=="__main__":
 
     dataset = configs.input.dataset
     save_path = configs.input.save_path.format(dataset)
+    rand = configs.input.random
     logging.basicConfig(format='%(asctime)s - %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         level=logging.INFO,
@@ -58,6 +60,7 @@ if __name__=="__main__":
     data_path = os.path.join(out_dir, dataset)
 
     corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="train")
+
     with open(save_path,'w') as f:
         for k,v in tqdm(qrels.items()):
             v = list(v.keys())[0]
@@ -65,8 +68,12 @@ if __name__=="__main__":
             context = corpus[v]
             doc = nlp(context['text'])
             if len(doc.ents) != 0:
+                ents = list(doc.ents)
+                if rand == "True":
+                    print('check')
+                    random.shuff(ents)
                 sub_type = wiki.get_categories(context['title'])
-                for ent in doc.ents:
+                for ent in ents:
                     if ent.label_ == "DATE" or ent.label_ == 'TIME' or ent.label_ == 'CARDINAL':
                         obj_type = ""
                         obj_sum = [str(s) for s in list(doc.sents) if ent.text in str(s)][0]
@@ -89,6 +96,6 @@ if __name__=="__main__":
                            }
                     text = make_text(sub,pre,obj,v)
                     f.write(text)
-            break
-
+                    exit(0)
+                    break
 
