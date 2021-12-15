@@ -7,6 +7,9 @@ import pickle
 
 p = re.compile(r'__[a-zA-Z\s]+_')
 
+
+
+
 class WikiTable:
     def __init__(self, file_path: str):
         self.file_path = file_path

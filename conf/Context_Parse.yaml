@@ -1,0 +1,3 @@
+input:
+  dataset: nq
+  save_path: /home/tjrals/beir/gen_datasets/{}_pred.txt
