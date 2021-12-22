@@ -5,6 +5,7 @@ from tqdm import tqdm
 import yaml
 import logging
 import pathlib, os
+from utils import DictObj
 from generator.wiki_extract import Wiki_Extract
 from beir import util, LoggingHandler
 from beir.datasets.data_loader import GenericDataLoader
@@ -20,16 +21,6 @@ def make_text(sub,pre,obj,ids):
                               obj['name'],obj['type'],obj['des'])
     text = text_format.format(data,ids)
     return text
-
-
-class DictObj:
-    def __init__(self, in_dict:dict):
-        assert isinstance(in_dict, dict)
-        for key, val in in_dict.items():
-            if isinstance(val, (list, tuple)):
-               setattr(self, key, [DictObj(x) if isinstance(x, dict) else x for x in val])
-            else:
-               setattr(self, key, DictObj(val) if isinstance(val, dict) else val)
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -96,6 +87,5 @@ if __name__=="__main__":
                            }
                     text = make_text(sub,pre,obj,v)
                     f.write(text)
-                    exit(0)
-                    break
+
 

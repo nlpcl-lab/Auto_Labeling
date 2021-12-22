@@ -1,3 +1,9 @@
 input:
   dataset: nq
   save_path: /home/tjrals/beir/gen_datasets/{}_pred.txt
+  gen_result: /home/tjrals/beir/gen_datasets/{}_predict_v2
+  random: True
+
+output:
+  dataset: nq_our
+  query: /home/tjrals/beir/dataset/{}/queries.jsonl
