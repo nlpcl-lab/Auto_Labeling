@@ -36,13 +36,14 @@ if __name__=="__main__":
     #### /print debug information to stdout
 
     model_name = configs.eval.model
-    dataset = configs.eval.data
-    logging.info("Dataset is {}".format(dataset))
+    train_dataset = configs.eval.train_data
+    eval_dataset = configs.eval.eval_data
+    logging.info("Dataset is {}".format(eval_dataset))
     out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
-    data_path = os.path.join(out_dir, dataset)
+    data_path = os.path.join(out_dir, eval_dataset)
 
-    corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="dev")
-    model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output", "{}-v2-{}".format(model_name, dataset))
+    corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
+    model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output", "{}-v2-{}".format(model_name, train_dataset))
     #trained DPR model
 
     model = DRES(models.SentenceBERT(model_save_path))

@@ -92,6 +92,7 @@ class Wiki_Extract:
         targets = [target] + [f(target) for f in self.process if f(target) is not None]
         for target in targets:
             page = self.wiki.page(target.strip())
+            print(page)
             if page.exists() and page.categories is not None:
                 title = [c.replace('Category:','') for c in page.categories.keys()]
                 title = [c for c in title if preprocess_3(c) and target not in c]

@@ -2,5 +2,7 @@ train:
   data: nq_our_1
 
 eval:
-  data: nq_our_1
+  train_data: nq_our_1
+  eval_data: msmarco
   model: bert-base-uncased
+  random : True
