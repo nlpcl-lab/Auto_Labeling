@@ -38,11 +38,12 @@ if __name__=="__main__":
     model_name = configs.eval.model
     train_dataset = configs.eval.train_data
     eval_dataset = configs.eval.eval_data
+    eval_type = configs.eval.type
     logging.info("Dataset is {}".format(eval_dataset))
     out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
     data_path = os.path.join(out_dir, eval_dataset)
 
-    corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split="test")
+    corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split=eval_type)
     model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output", "{}-v2-{}".format(model_name, train_dataset))
     #trained DPR model
 

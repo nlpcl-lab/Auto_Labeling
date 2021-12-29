@@ -46,7 +46,8 @@ if __name__=="__main__":
     max_seq_length = 256            # Max length for passages. Increasing it, requires more GPU memory (O(n^4))
 
     #### Provide any sentence-transformers or HF model
-    model_name = "bert-base-uncased"
+    model_name = configs.train.model
+    logging.info("Model is {}".format(model_name))
     word_embedding_model = models.Transformer(model_name, max_seq_length=max_seq_length)
     pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension(),pooling_mode_cls_token=True, pooling_mode_mean_tokens=False)
     model = SentenceTransformer(modules=[word_embedding_model, pooling_model])
