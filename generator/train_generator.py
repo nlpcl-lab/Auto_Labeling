@@ -8,7 +8,7 @@ from datasets import load_metric,load_dataset
 import argparse
 import numpy as np
 import yaml
-from utils import DictObj, Corpus, MS_Data, collate_fn, compute_metrics
+from utils import DictObj, Corpus, Custom_Data, collate_fn, compute_metrics
 
 
 def tokenize_function(examples):
@@ -41,12 +41,9 @@ if __name__=="__main__":
     # train_dataset = Data(dataset_path, 'train.txt')
     # eval_dataset = Data(dataset_path, 'valid.txt')
     # test_dataset = Data(dataset_path, 'test.txt')
-    raw_dataset = load_dataset("ms_marco","v2.1")
-    train_dataset = MS_Data(raw_dataset['train'])
-    eval_dataset = MS_Data(raw_dataset['validation'])
-    column_names = train_dataset.column_names
-
-
+    raw_dataset = load_dataset("squad_v2")
+    train_dataset = Custom_Data(raw_dataset['train'])
+    eval_dataset = Custom_Data(raw_dataset['validation'])
 
     # model = BartForConditionalGeneration.from_pretrained("facebook/bart-large", forced_bos_token_id=0)
     # tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")

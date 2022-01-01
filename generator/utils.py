@@ -24,14 +24,11 @@ class Corpus:
         assert cls.__tokenizer, 'failed to load'
         return cls.__tokenizer
 
-class MS_Data(Dataset):
+class Custom_Data(Dataset):
     def __init__(self, dataset):
-        super(MS_Data, self).__init__()
-        self.src = []
-        for p in dataset['passages']:
-            index = p['is_selected'].index(1)
-            self.src.append("Make Question from passage: "+p['passage_text'][index]+" Question:")
-        self.tgt = dataset['query']
+        super(Custom_Data, self).__init__()
+        self.src = ["Make question from Passage: " + c + "Generated Question: " for c in dataset['context']]
+        self.tgt = dataset['question']
 
     def __getitem__(self, index):
         return self.src[index], self.tgt[index]
