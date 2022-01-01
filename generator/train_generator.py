@@ -35,8 +35,8 @@ if __name__=="__main__":
     # eval_dataset = Data(dataset_path, 'valid.txt')
     # test_dataset = Data(dataset_path, 'test.txt')
     raw_dataset = load_dataset("ms_marco","v2.1")
-    column_names = raw_dataset["train"].column_names
-    print(column_names)
+    train_dataset = raw_dataset['train']
+    eval_dataset = raw_dataset['validation']
 
     # model = BartForConditionalGeneration.from_pretrained("facebook/bart-large", forced_bos_token_id=0)
     # tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
@@ -74,8 +74,8 @@ if __name__=="__main__":
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_datset=None,
-        eval_dataset=None,
+        train_datset=train_dataset,
+        eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         data_collator=collate_fn
     )

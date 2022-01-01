@@ -47,6 +47,7 @@ class Data(Dataset):
 
 def collate_fn(batch):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(batch)
     src_sentences, tgt_sentences = map(list, zip(*batch))
     tokenizer = Corpus.get_tokenizer()
     batch = tokenizer(src_sentences, padding=True, truncation=True, max_length=512, return_tensors='pt')
