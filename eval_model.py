@@ -17,7 +17,7 @@ dataset_files = {"msmarco":'dev',
                  "fiqa":'test',
                  "arguana":'test',
                  "webis-touche2020":'test',
-                 "cqadupstack":'test',
+                 # "cqadupstack":'test',
                  "quora":'test',
                  "dbpedia-entity":'test',
                  "scidocs":'test',
@@ -65,7 +65,7 @@ def eval(model_name, train_dataset,eval_dataset, eval_type):
         "recall" : recall,
         "precision" : precision
     }
-    with open(os.path.join(model_save_path,"result","{}.json".format(eval_dataset)),'w') as fw:
+    with open(os.path.join(model_save_path,"eval","{}.json".format(eval_dataset)),'w') as fw:
         json.dump(result,fw)
 
 
@@ -88,7 +88,10 @@ if __name__=="__main__":
         model_name = args.model_name
         train_dataset = args.train_dataset
         for eval_dataset,eval_type in dataset_files.items():
-            eval(model_name,train_dataset,eval_dataset,eval_type)
+            model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output",
+                                           "{}-v2-{}".format(model_name, train_dataset))
+            if not os.path.exists(os.path.join(model_save_path,"eval","{}.json".format(eval_dataset))):
+                eval(model_name,train_dataset,eval_dataset,eval_type)
     else:
         with open(config_filepath) as f:
             configs = yaml.load(f, Loader=yaml.FullLoader)
