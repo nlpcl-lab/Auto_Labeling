@@ -1,5 +1,9 @@
 from torch.utils.data.dataset import Dataset
 import torch
+import numpy as np
+from datasets import load_metric
+
+bleu = load_metric('bleu')
 
 class DictObj:
 
