@@ -74,7 +74,7 @@ if __name__=="__main__":
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_datset=train_dataset,
+        train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         data_collator=collate_fn
