@@ -62,9 +62,9 @@ def collate_fn(batch):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     src_sentences, tgt_sentences = map(list, zip(*batch))
     tokenizer = Corpus.get_tokenizer()
-    batch = tokenizer(src_sentences, padding=True, truncation=True, max_length=512, return_tensors='pt')
+    batch = tokenizer(src_sentences, padding=True, truncation=False, max_length=512, return_tensors='pt')
     with tokenizer.as_target_tokenizer():
-        labels = tokenizer(tgt_sentences, padding=True, truncation=True, max_length=512, return_tensors='pt')
+        labels = tokenizer(tgt_sentences, padding=True, truncation=False, max_length=512, return_tensors='pt')
     batch['labels'] = labels['input_ids']
     # batch['decoder_attention_mask'] = labels['attention_mask']
     batch = {k:v.to(device) for k,v in batch.items()}
