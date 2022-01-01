@@ -60,8 +60,8 @@ if __name__=="__main__":
     training_args = TrainingArguments(
         output_dir=model_path,
         save_strategy='epoch',
-        per_device_train_batch_size=8,
-        per_device_eval_batch_size=4,
+        per_device_train_batch_size=1,
+        per_device_eval_batch_size=1,
         num_train_epochs=epochs,
         seed=random_seed,
         dataloader_pin_memory=False,
