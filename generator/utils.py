@@ -24,6 +24,19 @@ class Corpus:
         assert cls.__tokenizer, 'failed to load'
         return cls.__tokenizer
 
+class MS_Data(Dataset):
+    def __init__(self, dataset):
+        super(MS_Data, self).__init__()
+        self.src = []
+        self.tgt = []
+        for p in dataset['passages']:
+            print(p)
+            break
+        for q in dataset['query']:
+            print(q)
+            break
+
+
 
 class Data(Dataset):
     def __init__(self, dataset_path, data_type: str):

@@ -12,7 +12,8 @@ from utils import DictObj, Corpus, Data, collate_fn, compute_metrics
 
 
 def tokenize_function(examples):
-    output = tokenizer(examples[text_column_name])
+    output = tokenizer(examples["passage"])
+
     return output
 
 
@@ -41,11 +42,10 @@ if __name__=="__main__":
     # eval_dataset = Data(dataset_path, 'valid.txt')
     # test_dataset = Data(dataset_path, 'test.txt')
     raw_dataset = load_dataset("ms_marco","v2.1")
-    train_dataset = raw_dataset['train']
+    train_dataset = Data(raw_dataset['train'])
+    exit(0)
     eval_dataset = raw_dataset['validation']
     column_names = train_dataset.column_names
-    print(column_names)
-    print(type(column_names))
 
 
 
