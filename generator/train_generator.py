@@ -34,7 +34,7 @@ if __name__=="__main__":
     # train_dataset = Data(dataset_path, 'train.txt')
     # eval_dataset = Data(dataset_path, 'valid.txt')
     # test_dataset = Data(dataset_path, 'test.txt')
-    raw_dataset = load_dataset("ms_marco")
+    raw_dataset = load_dataset("ms_marco","v2.1")
     column_names = raw_dataset["train"].column_names
     print(column_names)
 
