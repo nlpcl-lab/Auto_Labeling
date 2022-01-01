@@ -1,3 +1,4 @@
+from transformers import GPT2LMHeadModel,  GPT2Tokenizer, GPT2Config, GPT2LMHeadModel
 from transformers import BartForConditionalGeneration, BartTokenizer
 import torch
 from torch.utils.data.dataset import Dataset
@@ -51,7 +52,8 @@ if __name__=="__main__":
     # num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
     # model.resize_token_embeddings(len(tokenizer))
 
-    model = AutoModelForCausalLM.from_pretrained(model_name)
+    configuration = GPT2Config.from_pretrained('gpt2', output_hidden_states=False)
+    model = GPT2LMHeadModel.from_pretrained("gpt2", config=configuration)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token = tokenizer.eos_token
     model.resize_token_embeddings(len(tokenizer))
