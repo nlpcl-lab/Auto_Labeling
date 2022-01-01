@@ -2,7 +2,9 @@ from transformers import BartForConditionalGeneration, BartTokenizer
 import torch
 from torch.utils.data.dataset import Dataset
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-from datasets import load_metric
+from transformers import Trainer, TrainingArguments
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from datasets import load_metric,load_dataset
 import argparse
 import numpy as np
 import yaml
@@ -29,35 +31,62 @@ if __name__=="__main__":
     torch.manual_seed(random_seed)
     bleu = load_metric('bleu')
 
-    train_dataset =  Data(dataset_path, 'train.txt')
-    eval_dataset = Data(dataset_path, 'valid.txt')
-    test_dataset = Data(dataset_path, 'test.txt')
+    # train_dataset = Data(dataset_path, 'train.txt')
+    # eval_dataset = Data(dataset_path, 'valid.txt')
+    # test_dataset = Data(dataset_path, 'test.txt')
+    raw_dataset = load_dataset("ms_marco")
+    column_names = raw_dataset["train"].column_names
+    print(column_names)
 
-    model = BartForConditionalGeneration.from_pretrained("facebook/bart-large", forced_bos_token_id=0)
-    tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
-    special_tokens_dict = {'additional_special_tokens': ['__SUB__','__name__','__type__','__SEP__','__des__','__PRE__','__token__','__OBJ__']}
-    num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
-    model.resize_token_embeddings(len(tokenizer))
+    # model = BartForConditionalGeneration.from_pretrained("facebook/bart-large", forced_bos_token_id=0)
+    # tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
+    # special_tokens_dict = {'additional_special_tokens': ['__SUB__','__name__','__type__','__SEP__','__des__','__PRE__','__token__','__OBJ__']}
+    # num_added_toks = tokenizer.add_special_tokens(special_tokens_dict)
+    # model.resize_token_embeddings(len(tokenizer))
+
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
 
     Corpus.create_tokenizer(tokenizer)
 
-    training_args = Seq2SeqTrainingArguments(
-        output_dir = model_path,
+    training_args = TrainingArguments(
+        output_dir=model_path,
         save_strategy='epoch',
-        per_device_train_batch_size=batch_size,
+        per_device_train_batch_size=8,
+        per_device_eval_batch_size=4,
         num_train_epochs=epochs,
         seed=random_seed,
         dataloader_pin_memory=False,
         save_total_limit=1
     )
 
-    trainer = Seq2SeqTrainer(
+    # training_args = Seq2SeqTrainingArguments(
+    #     output_dir = model_path,
+    #     save_strategy='epoch',
+    #     per_device_train_batch_size=batch_size,
+    #     num_train_epochs=epochs,
+    #     seed=random_seed,
+    #     dataloader_pin_memory=False,
+    #     save_total_limit=1
+    # )
+
+    trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=train_dataset,
-        data_collator=collate_fn,
-        compute_metrics=compute_metrics
+        train_datset=None,
+        eval_dataset=None,
+        tokenizer=tokenizer,
+        data_collator=collate_fn
     )
+
+    # trainer = Seq2SeqTrainer(
+    #     model=model,
+    #     args=training_args,
+    #     train_dataset=train_dataset,
+    #     data_collator=collate_fn,
+    #     compute_metrics=compute_metrics
+    # )
 
     train_result = trainer.train()
     trainer.save_model()
