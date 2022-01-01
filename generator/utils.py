@@ -28,13 +28,16 @@ class MS_Data(Dataset):
     def __init__(self, dataset):
         super(MS_Data, self).__init__()
         self.src = []
-        self.tgt = []
         for p in dataset['passages']:
-            print(p)
-            break
-        for q in dataset['query']:
-            print(q)
-            break
+            index = p['is_selected'].index(1)
+            self.src.append("Make Question from passage: "+p['passage_text'][index]+" Question:")
+        self.tgt = dataset['query']
+
+    def __getitem__(self, index):
+        return self.src[index], self.tgt[index]
+
+    def __len__(self):
+        return len(self.src)
 
 
 
