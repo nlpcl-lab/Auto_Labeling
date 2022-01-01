@@ -3,7 +3,7 @@ gen_query:
   batch_size : 8
   epochs : 6
   model_path : /home/tjrals/Auto_Labeling/gen_model/{}
-  model_name : KB_BART
+  model_name : gpt2
   random_seed : 42
 
 
