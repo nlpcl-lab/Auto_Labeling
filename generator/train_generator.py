@@ -53,7 +53,7 @@ if __name__=="__main__":
 
     model = AutoModelForCausalLM.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-
+    tokenizer.pad_token = tokenizer.eos_token
 
     Corpus.create_tokenizer(tokenizer)
 
