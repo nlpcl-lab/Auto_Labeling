@@ -31,14 +31,13 @@ class Corpus:
 class Custom_Data(Dataset):
     def __init__(self, dataset):
         super(Custom_Data, self).__init__()
-        self.src = ["Make question from Passage: " + c + "Generated Question: " for c in dataset['context']]
-        self.tgt = dataset['question']
+        self.input = ["Make question from Passage: " + c + "Generated Question: " + q for c,q in zip(dataset['context'],dataset['question'])]
 
     def __getitem__(self, index):
-        return self.src[index], self.tgt[index]
+        return self.input[index]
 
     def __len__(self):
-        return len(self.src)
+        return len(self.input)
 
 
 
@@ -64,15 +63,9 @@ class Data(Dataset):
 
 def collate_fn(batch):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    src_sentences, tgt_sentences = map(list, zip(*batch))
+    input_sentences = map(list, zip(*batch))
     tokenizer = Corpus.get_tokenizer()
-    # batch = tokenizer(src_sentences, padding=False, truncation=False, max_length=512, return_tensors='pt')
-    batch = tokenizer(src_sentences)
-    with tokenizer.as_target_tokenizer():
-        # labels = tokenizer(tgt_sentences, padding=False, truncation=False, max_length=512, return_tensors='pt')
-        labels = tokenizer(tgt_sentences)
-    batch['labels'] = labels['input_ids']
-    # batch['decoder_attention_mask'] = labels['attention_mask']
+    batch = tokenizer(input_sentences, padding=True, truncation=True, max_length=2056, return_tensors='pt')
     batch = {k:v.to(device) for k,v in batch.items()}
     return batch
 
