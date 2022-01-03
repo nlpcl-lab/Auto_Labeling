@@ -1,11 +1,13 @@
-
 from sentence_transformers import SentenceTransformer, models, losses
 from beir import util, LoggingHandler
 from beir.datasets.data_loader import GenericDataLoader
 from beir.retrieval.train import TrainRetriever
+from beir.retrieval.evaluation import EvaluateRetrieval
+from beir.retrieval.search.lexical import BM25Search as BM25
 import pathlib, os, gzip
 import logging
 from torch.optim import Adam
+from tqdm import tqdm
 import yaml, argparse
 
 class DictObj:
@@ -21,6 +23,7 @@ class DictObj:
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Training')
     parser.add_argument('--configs', '-cf', type=str, default='./conf/IR.yaml')
+    parser.add_argument('--data','-d',type=str, default='None')
 
     args = parser.parse_args()
     config_filepath = args.configs
@@ -34,13 +37,56 @@ if __name__=="__main__":
                         level=logging.INFO,
                         handlers=[LoggingHandler()])
 
-    dataset = configs.train.data
+    if args.data == 'None':
+        dataset = configs.train.data
+    else:
+        dataset = args.data
+
+    version = configs.train.version
     logging.info("Dataset is {}".format(dataset))
     out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "dataset")
     data_path = os.path.join(out_dir, dataset)
 
     #### Please Note not all datasets contain a dev split, comment out the line if such the case
     corpus, queries, qrels = GenericDataLoader(data_path).load(split="train")
+    if version == "Hard":
+        hostname = "http://localhost:9200"
+        index_name = "nq"
+
+        #### Intialize ####
+        # (1) True - Delete existing index and re-index all documents from scratch
+        # (2) False - Load existing index
+        initialize = True  # False
+
+        #### Sharding ####
+        # (1) For datasets with small corpus (datasets ~ < 5k docs) => limit shards = 1
+        # SciFact is a relatively small dataset! (limit shards to 1)
+        number_of_shards = 1
+        model = BM25(index_name=index_name, hostname=hostname, initialize=initialize, number_of_shards=number_of_shards)
+
+        # (2) For datasets with big corpus ==> keep default configuration
+        # model = BM25(index_name=index_name, hostname=hostname, initialize=initialize)
+        bm25 = EvaluateRetrieval(model)
+
+        #### Index passages into the index (seperately)
+        bm25.retriever.index(corpus)
+
+        triplets = []
+        qids = list(qrels)
+        hard_negatives_max = 10
+
+        #### Retrieve BM25 hard negatives => Given a positive document, find most similar lexical documents
+        for idx in tqdm.tqdm(range(len(qids)), desc="Retrieve Hard Negatives using BM25"):
+            query_id, query_text = qids[idx], queries[qids[idx]]
+            pos_docs = [doc_id for doc_id in qrels[query_id] if qrels[query_id][doc_id] > 0]
+            pos_doc_texts = [corpus[doc_id]["title"] + " " + corpus[doc_id]["text"] for doc_id in pos_docs]
+            hits = bm25.retriever.es.lexical_multisearch(texts=pos_doc_texts, top_hits=hard_negatives_max + 1)
+            for (pos_text, hit) in zip(pos_doc_texts, hits):
+                for (neg_id, _) in hit.get("hits"):
+                    if neg_id not in pos_docs:
+                        neg_text = corpus[neg_id]["title"] + " " + corpus[neg_id]["text"]
+                        triplets.append([query_text, pos_text, neg_text])
+
 
     train_batch_size = 32           # Increasing the train batch size improves the model performance, but requires more GPU memory (O(n^2))
     max_seq_length = 256            # Max length for passages. Increasing it, requires more GPU memory (O(n^4))
@@ -54,9 +100,13 @@ if __name__=="__main__":
     #### Provide a high batch-size to train better with triplets!
     retriever = TrainRetriever(model=model, batch_size=train_batch_size)
 
-    #### Prepare triplets samples
-    train_samples = retriever.load_train(corpus, queries, qrels)
-    train_dataloader = retriever.prepare_train(train_samples, shuffle=True)
+    if version == "Hard":
+        train_samples = retriever.load_train_triplets(triplets=triplets)
+        train_dataloader = retriever.prepare_train_triplets(train_samples)
+    else:
+        #### Prepare triplets samples
+        train_samples = retriever.load_train(corpus, queries, qrels)
+        train_dataloader = retriever.prepare_train(train_samples, shuffle=True)
 
     #### Training SBERT with cosine-product
     # train_loss = losses.MultipleNegativesRankingLoss(model=retriever.model)
@@ -67,7 +117,7 @@ if __name__=="__main__":
     ir_evaluator = retriever.load_dummy_evaluator()
 
     #### Provide model save path
-    model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output", "{}-v2-{}".format(model_name, dataset))
+    model_save_path = os.path.join(pathlib.Path(__file__).parent.absolute(), "output", "{}-{}-{}".format(model_name,version,dataset))
     os.makedirs(model_save_path, exist_ok=True)
 
     #### Configure Train params

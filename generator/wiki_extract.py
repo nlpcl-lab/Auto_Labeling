@@ -74,11 +74,14 @@ class Wiki_Extract:
 
     def get_summary(self, target: str):
         targets = [target] + [f(target) for f in self.process if f(target) is not None]
-        for target in targets:
-            page = self.wiki.page(target.strip())
-            if page.exists() and page.summary is not None:
-                return page.summary
-        return ""
+        try:
+            for target in targets:
+                page = self.wiki.page(target.strip())
+                if page.exists() and page.summary is not None:
+                    return page.summary
+            return ""
+        except:
+            return ""
 
     def get_section(self, target: str):
         targets = [target] + [f(target) for f in self.process if f(target) is not None]
@@ -90,16 +93,20 @@ class Wiki_Extract:
 
     def get_categories(self, target: str):
         targets = [target] + [f(target) for f in self.process if f(target) is not None]
-        for target in targets:
-            page = self.wiki.page(target.strip())
-            print(page)
-            if page.exists() and page.categories is not None:
-                title = [c.replace('Category:','') for c in page.categories.keys()]
-                title = [c for c in title if preprocess_3(c) and target not in c]
-                title.sort(key=len)
-                if len(title) > 2: title = title[:2]
-                return "__SEP__ ".join(title)
-        return ""
+        try:
+            for target in targets:
+                page = self.wiki.page(target.strip())
+                if not isinstance(page, wikipediaapi.WikipediaPage): return ""
+                if page.exists():
+                    if page.categories is not None:
+                        title = [c.replace('Category:','') for c in page.categories.keys()]
+                        title = [c for c in title if preprocess_3(c) and target not in c]
+                        title.sort(key=len)
+                        if len(title) > 2: title = title[:2]
+                        return "__SEP__ ".join(title)
+            return ""
+        except:
+            return ""
 
 
 
