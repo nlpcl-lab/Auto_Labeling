@@ -43,7 +43,6 @@ data_path = os.path.join(out_dir, eval_dataset)
 
 corpus, queries, qrels = GenericDataLoader(data_folder=data_path).load(split=eval_type)
 
-corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
 
 hostname = "http://localhost:9200"
 index_name = "nq"
